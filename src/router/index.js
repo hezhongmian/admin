@@ -1,15 +1,15 @@
 import Vue from 'vue';
-import Router from 'vue-router';
+import VueRouter from 'vue-router';
 
 
-Vue.use(Router);
+Vue.use(VueRouter);
 
 export const constantRouterMap = [
   // hidden 的作用应该是确定路由白名单的
-  { path: '/login', components: () => import('@/views/login/index'), hidden: true }
+  { path: '/login', component: () => import('@/views/login/index'), hidden: true }
 ]
 
-export default new Router({
+export default new VueRouter({
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRouterMap 
 })
