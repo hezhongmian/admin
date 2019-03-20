@@ -27,6 +27,8 @@ router.beforeEach((to, from, next) => {
       if (store.getters.roles.length === 0) {
         store.dispatch('GetInfo').then(res => {
           next();
+        }).catch((err) => {
+          
         })
       } else {
         next()

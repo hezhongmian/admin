@@ -5,8 +5,9 @@ import '@/styles/index.scss';
 
 import App from './App';
 import router from './router';
+import store from './store';
 
-// import '@/icons';
+import '@/icons';
 // import '@/permission';
 
 Vue.use(ElementUI);
@@ -17,6 +18,7 @@ Vue.config.productionTip = false;
 new Vue({
   el: '#app',
   router, 
+  store,
   template: '<App/>',
   components: { App }
 })
