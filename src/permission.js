@@ -18,13 +18,16 @@ const whiteList = ['/login']; // 不重定向白名单?
 router.beforeEach((to, from, next) => {
   NProgress.start(); // 启动进度条
   if (getToken()) {
+    // if (!store.getters.token) {
+    //   store.commit('SET_TOKEN', getToken());
+    // }
     // cookie中存在token,证明已经登录
     if (to.path === 'login') {
       next({ path: '/' })
       NProgress.done(); // 取消进度条
     } else {
       // 判断vuex中是否存储登录用户信息,
-      if (store.getters.roles.length === 0) {
+      if (store.getters.roles.length === 0) { 
         store.dispatch('GetInfo').then(res => {
           next();
         }).catch((err) => {

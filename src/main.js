@@ -8,7 +8,7 @@ import router from './router';
 import store from './store';
 
 import '@/icons';
-// import '@/permission';
+import '@/permission';
 
 Vue.use(ElementUI);
 
