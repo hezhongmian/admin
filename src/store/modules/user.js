@@ -4,7 +4,7 @@ import { getToken, setToken, removeToken } from '@/utils/auth'
 export default {
   state: {
     roles: [], // 登录信息
-    token: '', // token信息
+    token: getToken(), // token信息
     avatar: '', // 头像
     name: '', // 用户名
   },
@@ -40,7 +40,7 @@ export default {
       return new Promise((resolve, reject) => {
         login(username, userInfo.password).then(response => {
           const data = response.data;
-          const tokenStr = data.tokenHead + data.tokenHead
+          const tokenStr = data.tokenHead + data.token
           // 在cookei中设置token
           setToken(tokenStr);
           commit('SET_TOKEN', tokenStr);

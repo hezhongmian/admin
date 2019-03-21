@@ -18,9 +18,6 @@ const whiteList = ['/login']; // 不重定向白名单?
 router.beforeEach((to, from, next) => {
   NProgress.start(); // 启动进度条
   if (getToken()) {
-    // if (!store.getters.token) {
-    //   store.commit('SET_TOKEN', getToken());
-    // }
     // cookie中存在token,证明已经登录
     if (to.path === 'login') {
       next({ path: '/' })
@@ -31,7 +28,10 @@ router.beforeEach((to, from, next) => {
         store.dispatch('GetInfo').then(res => {
           next();
         }).catch((err) => {
-          
+          store.dispatch('FedLogOut').then(() => {
+            Message.error(err || 'Verification failed, please login again');
+            next({ path: '/login' })
+          })
         })
       } else {
         next()
