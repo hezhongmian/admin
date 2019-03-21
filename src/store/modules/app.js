@@ -5,7 +5,8 @@ export default {
     sidebar: {
       opened: !+Cookies.get('sidebarStatus'), // 判断左侧栏显示方式
       withoutAnimation: false
-    }
+    },
+    device: 'desktop' // 某种模式?
   },
   actions: {
     // 切换左侧栏的方式
