@@ -61,11 +61,11 @@ export default {
       state.roles = roles;
     },
     // 存储用户名
-    SET_ROLES: (state, name) => {
+    SET_NAME: (state, name) => {
       state.name = name;
     },
     // 存储用户头像?
-    SET_ROLES: (state, avatar) => {
+    SET_AVATAR: (state, avatar) => {
       state.avatar = avatar;
     }
   }
