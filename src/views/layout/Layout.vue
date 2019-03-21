@@ -19,7 +19,7 @@ export default {
   computed: {
     classObj() {
       return {
-        // hideSidebar: !this.sidebar.opened,
+        hideSidebar: !this.$store.state.app.sidebar.opened,
       }
     }
   },

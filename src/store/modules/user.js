@@ -49,6 +49,23 @@ export default {
           reject(e);
         })
       })
+    },
+    /**
+     * 退出
+     */
+    LogOut({ commit, state }) {
+      return new Promise((resolve, reject) => {
+        // 登录需发送ajax
+        logout(state.token).then(() => {
+          commit('SET_TOKEN', '');
+          commit('SET_ROLES', []);
+          // 删除cookie
+          removeToken();
+          resolve();
+        }).catch(error => {
+          rejece(error);
+        })
+      })
     }
   },
   mutations: {

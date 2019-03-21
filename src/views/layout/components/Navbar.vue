@@ -1,22 +1,60 @@
 <template>
   <!-- 头部 -->
   <el-menu class="navbar" mode="horizontal">
+    <!-- 控制左侧栏的按钮 -->
+    <hamburger class="hamburger-container" :toggleClick="toggleSideBar" :isActive="sidebar.opened"></hamburger>
+    <!-- 这应该是面包屑吧 -->
+    <breadcrumb></breadcrumb>  
     <!-- 登出按钮 -->
     <el-dropdown class="avatar-container" trigger="click">
       <div class="avatar-wrapper">
         <img :src="avatar" class="user-avatar">
         <i class="el-icon-caret-bottom"></i>
       </div>
+      <el-dropdown-menu class="user-dropdown" slot="dropdown">
+        <router-link to="/" class="inlineBlock">
+          <el-dropdown-item>
+            首页
+          </el-dropdown-item>
+        </router-link>
+        <el-dropdown-item divided>
+          <span @click="logout" style="display: block;">退出</span>
+        </el-dropdown-item>
+      </el-dropdown-menu>
     </el-dropdown>
   </el-menu>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
+import Breadcrumb from '@/components/Breadcrumb';
+import Hamburger from '@/components/Hamburger';
+
 export default {
-  computed: {
-    ...mapGetters(['avatar'])
+  name: 'navbar',
+  methods: {
+    /**
+     * 登出功能
+     */
+    logout() {
+      this.$store.dispatch('LogOut').then(() => {
+        location.reload(); // 刷新,重新实例化vue-router对象,避免bug
+      })
+    },
+    /**
+     * 切换左侧栏的方式
+     */
+    toggleSideBar() {
+      this.$store.dispatch('ToggleSideBar');
+    }
   },
+  computed: {
+    ...mapGetters(['avatar', 'sidebar'])
+  },
+  components: {
+    Breadcrumb,
+    Hamburger
+  }
 }
 </script>
 
