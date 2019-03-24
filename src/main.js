@@ -8,6 +8,8 @@ import 'normalize.css/normalize.css'
 import App from './App';
 import router from './router';
 import store from './store';
+import VCharts from 'v-charts'; // 图表插件
+Vue.use(VCharts);
 
 
 import '@/styles/index.scss'
