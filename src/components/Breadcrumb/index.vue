@@ -1,5 +1,5 @@
 <template>
-  <el-breadcrumb class="app-breadcrumb" separator="3">
+  <el-breadcrumb class="app-breadcrumb" separator="/">
     <transition-group name="breadcrumb">
       <el-breadcrumb-item v-for="(item, index) in levelList" :key="item.path" v-if="item.meta.title">
         <span v-if="item.redirect === 'noredirect' || index == levelList.length - 1" class="no-redirect">

@@ -37,7 +37,7 @@
 
 <script>
 export default {
-  name: 'sidebarItem',
+  name: 'SidebarItem',
   props: {
     routes: {
       type: Array
