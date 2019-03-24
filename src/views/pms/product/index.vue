@@ -35,7 +35,7 @@
             ></el-cascader>
           </el-form-item>
           <el-form-item label="商品品牌: ">
-            <el-select v-model="listQuery.branId" placeholder="请选择品牌" clearable>
+            <el-select v-model="listQuery.brandId" placeholder="请选择品牌" clearable>
               <el-option
                 v-for="item in brandOptions"
                 :key="item.value"
@@ -84,7 +84,7 @@
         ref="productTable"
         :data="list"
         style="width: 100%"
-        @selectino-change="handleSelectionChange"
+        @selection-change="handleSelectionChange"
         v-loading="listLoading"
         border
       >
@@ -209,6 +209,28 @@
         :total="total"
       ></el-pagination>
     </div>
+    <!-- 库存编辑弹框 -->
+    <el-dialog
+      title="编辑货品信息"
+      :visible.sync="editSkuInfo.dialogVisible"
+      width="40%"
+    >
+      <span>商品货号: </span>
+      <span>{{ editSkuInfo.productSn }}</span>
+      <el-input 
+        placeholder="按sku编号搜索"
+        v-model="editSkuInfo.keyword"
+        size="small"
+        style="width: 50%; margin-left: 20px;"
+      >
+        <el-button slot="append" icon="el-icon-search" @click="handleSearchEditSku"></el-button>
+      </el-input>
+      <el-table
+        style="width: 100%; margin-top: 20px"
+        :data="editSkuInfo.stockList"
+        border
+      ></el-table>
+    </el-dialog>
   </div>
 </template>
 
@@ -235,7 +257,7 @@ export default {
       listQuery: {  // 表单
         keyword: "", // 商品名称
         productSn: "", // 商品货号
-        branId: "", // 商品品牌
+        brandId: "", // 商品品牌
         publishStatus: "", // 上架状态
         verifyStatus: "",  // 审核状态
         pageNum: 1, // 起始条数
@@ -267,6 +289,13 @@ export default {
         { label: '转移到分类', value: 'transferCategory' },
         { label: '移入回收站', value: 'recycle' },
       ], 
+      multipleSelection: [], // 选中表格数据
+      editSkuInfo: { // 库存弹框数据
+        dialogVisible: false, // 控制显示
+        productSn: '', // 商品货号
+        keyword: null, // 搜索关键字
+        stockList: [], // 库存表格数据
+      }
     };
   },
   watch: {
@@ -291,11 +320,30 @@ export default {
     /**
      * 搜索
      */
-    handleSearchList() {},
+    handleSearchList() {
+      // 此时筛选数据已经变化了的, 直接再次请求即可
+      // 还是要对数据变化有着深刻的理解
+      this.listQuery.pageNum = 1;
+      this.getList();
+    },
     /**
      * 重置
      */
-    handleResetSearch() {},
+    handleResetSearch() {
+      // 数据重置
+      this.selectProductCateValue = [];
+      this.listQuery = {
+        keyword: "", // 商品名称
+        productSn: "", // 商品货号
+        brandId: "", // 商品品牌
+        publishStatus: "", // 上架状态
+        verifyStatus: "",  // 审核状态
+        pageNum: 1, // 起始条数
+        pageSize: 5, // 页总数
+        productCategoryId: null, // 货品分类
+      }
+      this.getList();
+    },
     /**
      * 获取商品分类选项
      */
@@ -335,8 +383,8 @@ export default {
     /**
      * 表格选项发生变化
      */
-    handleSelectionChange() {
-
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
     },
     /**
      * 获取表格数据
@@ -426,7 +474,13 @@ export default {
      * 编辑库存
      */
     handleShowSkuEditDialog(index, row) {
-
+      this.editSkuInfo.dialogVisible = true;
+      this.editSkuInfo.productSn = row.productSn;
+      this.editSkuInfo.keyword = null;
+      this.editSkuInfo.stockList = [];
+      fetchSkuStockList(row.id, { keyword: this.editSkuInfo.keyword }).then(response => {
+        this.editSkuInfo.stockList = response.data;
+      })
     },
     /**
      * 删除
@@ -462,7 +516,59 @@ export default {
      * 批量处理按钮
      */
     handleBatchOperate() {
-
+      if (this.operateType === null) {
+        this.$message({
+          message: '请选择操作类型',
+          type: 'warning',
+          duration: 1000
+        });
+        return;
+      }
+      if (!this.multipleSelection.length) {
+         this.$message({
+          message: '请选择要操作的商品',
+          type: 'warning',
+          duration: 1000
+        });
+        return;
+      }
+      this.$confirm('是否要进行该批量操作?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'waraning'
+      }).then(() => {
+        let ids = [];
+        for (let item of this.multipleSelection) {
+          ids.push(item.id);
+        }
+        switch (this.operateType) {
+          case this.operates[0].value:
+            this.updatePublishStatus(1, ids);
+            break;
+          case this.operates[1].value:
+            this.updatePublishStatus(0, ids);
+            break;
+          case this.operates[2].value:
+            this.updateRecommendStatus(1, ids);
+            break;
+          case this.operates[3].value:
+            this.updateRecommendStatus(0, ids);
+            break;
+          case this.operates[4].value:
+            this.updateNewStatus(1, ids);
+            break;
+          case this.operates[5].value:
+            this.updateNewStatus(0, ids);
+            break;
+          case this.operates[6].value:
+            // 转移到分类未做
+            break;
+          case this.operates[7].value:
+            this.updateDeleteStatus(1, ids);
+            break;
+        }
+        this.getList();
+      })
     },
     /**
      * 页数目
@@ -478,6 +584,12 @@ export default {
     handleCurrentChange(val) {
       this.listQuery.pageNum = val;
       this.getList();
+    },
+    /**
+     * 搜索sku库存
+     */
+    handleSearchEditSku() {
+
     }
   },
   created() {
