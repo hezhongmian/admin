@@ -84,6 +84,19 @@
             >转移商品</el-button>
           </template>
         </el-table-column>
+        <el-table-column label="操作" width="200" align="center">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              @click="$router.push({ path: '/pms/updateProductCate', query: { parentId: scope.row.id } })"
+            >编辑</el-button>
+            <el-button
+              size="mini"
+              type="danger"
+              @click="handleDelete(scope.idnex, scope.row)"
+            >删除</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
   </div>
@@ -159,6 +172,25 @@ export default {
           type: 'success',
           message: '修改成功',
           duration: 1000
+        })
+      })
+    },
+    /**
+     * 删除
+     */
+    handleDelete(index, row) {
+      this.$confirm('是否要删除该品牌', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteProductCate(row.id).then(response => {
+          this.$message({
+            message: '删除成功',
+            type: 'success',
+            duration: 1000
+          });
+          this.getList();
         })
       })
     }
