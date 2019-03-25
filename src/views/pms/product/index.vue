@@ -225,11 +225,42 @@
       >
         <el-button slot="append" icon="el-icon-search" @click="handleSearchEditSku"></el-button>
       </el-input>
+      <!-- 库存表格 -->
       <el-table
         style="width: 100%; margin-top: 20px"
         :data="editSkuInfo.stockList"
         border
-      ></el-table>
+      >
+        <el-table-column label="SKU编号" align="center">
+          <template slot-scope="scope">
+            <el-input v-model="scope.row.skuCode"></el-input>
+          </template>
+        </el-table-column>
+        <el-table-column v-for="(item, index) in editSkuInfo.productAttr" :key="index" :label="item.name" align="center">
+          <template slot-scope="scope">
+            {{ getProductSkuSp(scope.row, index) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="销量价格" width="80" align="center">
+          <template slot-scope="scope">
+            <el-input v-model="scope.row.price"></el-input>
+          </template>
+        </el-table-column>
+        <el-table-column label="商品库存" width="80" align="center">
+          <template slot-scope="scope">
+            <el-input v-model="scope.row.stock"></el-input>
+          </template>
+        </el-table-column>
+        <el-table-column label="库存预警值" width="100" align="center">
+          <template slot-scope="scope">
+            <el-input v-model="scope.row.lowStock"></el-input>
+          </template>
+        </el-table-column>
+      </el-table>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editSkuInfo.dialogVisible = false">取消</el-button>
+        <el-button @click="handleEditSkuConfirm" type="primary">确定</el-button>
+      </span>
     </el-dialog>
   </div>
 </template>
@@ -295,6 +326,8 @@ export default {
         productSn: '', // 商品货号
         keyword: null, // 搜索关键字
         stockList: [], // 库存表格数据
+        productAttr: [], // 库存其他数据
+        productId: '', // 商品ID
       }
     };
   },
@@ -478,8 +511,15 @@ export default {
       this.editSkuInfo.productSn = row.productSn;
       this.editSkuInfo.keyword = null;
       this.editSkuInfo.stockList = [];
+      this.editSkuInfo.productAttr = [];
+      this.editSkuInfo.productId = row.id;
+      // 获取表格数据
       fetchSkuStockList(row.id, { keyword: this.editSkuInfo.keyword }).then(response => {
         this.editSkuInfo.stockList = response.data;
+      })
+      // 获取表格列显示数据
+      fetchProductAttrList(row.productAttributeCategoryId, { type: 0 }).then(response => {
+        this.editSkuInfo.productAttr = response.data.list;
       })
     },
     /**
@@ -589,7 +629,48 @@ export default {
      * 搜索sku库存
      */
     handleSearchEditSku() {
-
+      fetchSkuStockList(this.editSkuInfo.productId, { keyword: this.editSkuInfo.keyword }).then(response => {
+        this.editSkuInfo.stockList = response.data;
+      })
+    },
+    /**
+     * 处理库存表格列数据
+     */
+    getProductSkuSp(row, index) {
+      if (index === 0) {
+        return row.sp1;
+      } else if (index === 1) {
+        return row.sp2;
+      } else {
+        return row.sp3;
+      }
+    },
+    /**
+     * 确定修改库存
+     */
+    handleEditSkuConfirm() {
+      if (!this.editSkuInfo.stockList.length) {
+        this.$message({
+          message: '暂无sku信息',
+          type: 'warning',
+          duration: 1000
+        })
+        return
+      }
+      this.$confirm('是否要进行修改', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        updateSkuStockList(this.editSkuInfo.productId, this.editSkuInfo.stockList).then(response => {
+          this.$message({
+            message: '修改成功',
+            type:　'success',
+            duration: 1000
+          });
+          this.editSkuInfo.dialogVisible = false;
+        })
+      })
     }
   },
   created() {
