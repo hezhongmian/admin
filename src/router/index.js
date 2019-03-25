@@ -24,11 +24,16 @@ export const constantRouterMap = [
     redirect: '/pms/product',
     name: 'pms',
     meta: { title: '商品', icon: 'product' },
-    children: [{ // 商品列表
-      path: 'addProduct',
+    children: [{ 
+      path: 'addProduct',// 商品列表
       name: 'addProduct',
       component: () => import('@/views/pms/product/index'),
       meta: { title: '商品列表', icon: 'product-list' }
+    }, { 
+      path: 'productCate',// 商品分类
+      name: 'productCate',
+      component: () => import('@/views/pms/productCate/index'),
+      meta: { title: '商品分类', icon: 'product-cate' }
     }]
   }
 ]
